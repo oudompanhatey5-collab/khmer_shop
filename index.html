@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Top-Up Shop</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #0f172a; color: #f8fafc; display: flex; justify-content: center; padding: 20px; }
+        .container { width: 100%; max-width: 480px; background: #1e293b; padding: 20px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        h2 { text-align: center; color: #38bdf8; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: bold; color: #94a3b8; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 15px; outline: none; }
+        input:focus, select:focus { border-color: #38bdf8; }
+        
+        /* ផ្នែកកាតទូទាត់ប្រាក់ (Payment Section) */
+        .qr-card { text-align: center; background: #334155; padding: 15px; border-radius: 12px; margin: 15px 0; }
+        .qr-card img { width: 100%; max-width: 250px; height: auto; border-radius: 12px; border: 2px solid #fff; margin-bottom: 15px; }
+        
+        /* ផ្នែកកាត ABA */
+        .aba-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 15px; text-align: left; }
+        .aba-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 12px; }
+        .bank-title { font-weight: 800; font-size: 1.1rem; color: #38bdf8; letter-spacing: 1px; }
+        .khqr-tag { background: #e11d48; color: white; font-weight: bold; font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; }
+        .account-name { background: #1e293b; padding: 10px; border-radius: 8px; margin-bottom: 12px; }
+        .label { font-size: 0.75rem; color: #94a3b8; }
+        .value { font-weight: 700; font-size: 1rem; color: #f8fafc; margin-top: 2px; }
+        .account-item { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .account-item:last-child { margin-bottom: 0; }
+        .acc-info { display: flex; align-items: center; gap: 10px; }
+        .currency-badge { font-size: 0.7rem; font-weight: bold; padding: 5px 8px; border-radius: 6px; }
+        .currency-badge.khr { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .currency-badge.usd { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .acc-number { font-weight: 700; font-size: 1rem; color: #ffffff; letter-spacing: 0.5px; }
+        .copy-btn { background: #334155; border: none; color: #f8fafc; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+        .copy-btn:hover { background: #0284c7; }
+
+        .btn-submit { width: 100%; padding: 14px; background: #0284c7; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-submit:hover { background: #0369a1; }
+        .status { text-align: center; margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🎮 ហាងបញ្ជូលហ្គេមអនឡាញ</h2>
+    <form id="topupForm">
+        
+        <!-- ជ្រើសរើសហ្គេម -->
+        <div class="form-group">
+            <label for="game">ជ្រើសរើសហ្គេម (Game)</label>
+            <select id="game" required>
+                <option value="eFootball">eFootball Mobile</option>
+                <option value="Mobile Legends">Mobile Legends (MLBB)</option>
+                <option value="PUBG Mobile">PUBG Mobile</option>
+            </select>
+        </div>
+
+        <!-- បញ្ចូល Player ID -->
+        <div class="form-group">
+            <label for="playerId">Player ID / User ID</label>
+            <input type="text" id="playerId" placeholder="ឧទាហរណ៍៖ 12345678 (1234)" required>
+        </div>
+
+        <!-- ជ្រើសរើសកញ្ចប់ -->
+        <div class="form-group">
+            <label for="package">ជ្រើសរើសកញ្ចប់ (Package)</label>
+            <select id="package" required>
+                <option value="130 Coins / $1.00">130 Coins / $1.00</option>
+                <option value="550 Coins / $4.00">550 Coins / $4.00</option>
+                <option value="1040 Coins / $7.50">1040 Coins / $7.50</option>
+            </select>
+        </div>
+
+        <!-- ផ្នែកទូទាត់ប្រាក់ (QR + Account Details) -->
+        <div class="qr-card">
+            <p style="margin-bottom: 12px; font-weight: bold; color: #cbd5e1;">ស្កេនទូទាត់ប្រាក់ ឬ Copy លេខគណនី</p>
+            
+            <!-- កន្លែងដាក់រូបភាព QR (ត្រូវប្រាកដថាបានដាក់ File ឈ្មោះ aba-qr.png ចូល GitHub) -->
+            <img src="aba-qr.png" alt="KHQR Code" id="qrCode">
+            
+            <!-- ប្រអប់ព័ត៌មាន ABA -->
+            <div class="aba-card">
+                <div class="aba-header">
+                    <span class="bank-title">ABA BANK</span>
+                    <span class="khqr-tag">KHQR</span>
+                </div>
+                
+                <div class="account-name">
+                    <div class="label">ឈ្មោះគណនី / Account Name</div>
+                    <div class="value">OUDOMPANHA TEY</div>
+                </div>
+
+                <div class="account-item">
+                    <div class="acc-info">
+                        <span class="currency-badge khr">KHR ៛</span>
+                        <div>
+                            <div class="label">គណនីប្រាក់រៀល</div>
+                            <div class="acc-number">018 712 827</div>
+                        </div>
+                    </div>
+                    <!-- បន្ថែម type="button" ដើម្បីការពារកុំឱ្យវា submit form -->
+                    <button type="button" class="copy-btn" onclick="copyToClipboard('018712827', 'khr')">
+                        <span id="khrText">Copy</span>
+                    </button>
+                </div>
+
+                <div class="account-item">
+                    <div class="acc-info">
+                        <span class="currency-badge usd">USD $</span>
+                        <div>
+                            <div class="label">គណនីប្រាក់ដុល្លារ</div>
+                            <div class="acc-number">018 712 826</div>
+                        </div>
+                    </div>
+                    <button type="button" class="copy-btn" onclick="copyToClipboard('018712826', 'usd')">
+                        <span id="usdText">Copy</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload វិក្កយបត្រ -->
+        <div class="form-group">
+            <label for="receipt">Upload វិក្កយបត្រទូទាត់ (Receipt Slip)</label>
+            <input type="file" id="receipt" accept="image/*" required>
+        </div>
+
+        <button type="submit" class="btn-submit">ផ្ញើការបញ្ជាទិញ (Submit Order)</button>
+        <div class="status" id="statusMessage"></div>
+    </form>
+</div>
+
+<script>
+    // មុខងារសម្រាប់ Copy លេខគណនី
+    function copyToClipboard(accNum, type) {
+        navigator.clipboard.writeText(accNum);
+        const btnText = document.getElementById(type + 'Text');
+        btnText.innerText = 'Copied!';
+        btnText.parentElement.style.background = '#059669'; // ប្ដូរពណ៌ទៅបៃតងពេល copy រួច
+        setTimeout(() => {
+            btnText.innerText = 'Copy';
+            btnText.parentElement.style.background = '#334155'; // ត្រឡប់ពណ៌ដើមវិញ
+        }, 2000);
+    }
+
+    // 1. ដាក់ Bot Token និង Chat ID របស់អ្នកនៅទីនេះ
+    const BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE';
+    const CHAT_ID = 'YOUR_CHAT_ID_HERE';
+
+    document.getElementById('topupForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const statusDiv = document.getElementById('statusMessage');
+        statusDiv.style.color = '#38bdf8';
+        statusDiv.innerText = 'កំពុងផ្ញើទិន្នន័យ... សូមរង់ចាំ!';
+
+        const game = document.getElementById('game').value;
+        const playerId = document.getElementById('playerId').value;
+        const packageChoice = document.getElementById('package').value;
+        const receiptFile = document.getElementById('receipt').files[0];
+
+        // រៀបចំសារផ្ញើទៅ Telegram
+        const captionText = `📥 **ការបញ្ជាទិញថ្មី (New Order)**\n\n` +
+                            `🎮 **Game:** ${game}\n` +
+                            `🆔 **Player ID:** \`${playerId}\`\n` +
+                            `💎 **Package:** ${packageChoice}\n` +
+                            `⏰ **Time:** ${new Date().toLocaleString()}`;
+
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('photo', receiptFile);
+        formData.append('caption', captionText);
+        formData.append('parse_mode', 'Markdown');
+
+        try {
+            const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.ok) {
+                statusDiv.style.color = '#4ade80';
+                statusDiv.innerText = '✅ ការបញ្ជាទិញជោគជ័យ! យើងខ្ញុំនឹងពិនិត្យ និងបញ្ចូលជូនឆាប់ៗ។';
+                document.getElementById('topupForm').reset();
+            } else {
+                throw new Error(result.description);
+            }
+        } catch (error) {
+            statusDiv.style.color = '#f87171';
+            statusDiv.innerText = '❌ មានបញ្ហា៖ សូមពិនិត្យមើល Bot Token/Chat ID របស់អ្នកឡើងវិញ!';
+            console.error(error);
+        }
+    });
+</script>
+
+</body>
+</html>
